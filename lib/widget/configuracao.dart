@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:projeto03/view/listas/solicitacoesLista.dart';
 import 'package:projeto03/widget/cadastroLocal.dart';
 import 'package:projeto03/widget/controleHoras.dart';
 import 'package:projeto03/widget/controleSalario.dart';
@@ -108,7 +109,12 @@ class Configuracoes extends StatelessWidget {
               child: ElevatedButton.icon(
                 icon: Icon(Icons.comment),
                 label: Text("Minhas Solicitações"),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SolicitacaoLista()),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   primary: Colors.transparent,
                 ),

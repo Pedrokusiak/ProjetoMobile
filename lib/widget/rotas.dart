@@ -11,4 +11,5 @@ class Rotas {
   static const recSenha = "recSenha";
   static const perfil = "perfil";
   static const trabalhoLista = "trabalhoLista";
+  static const solicitacaoLista = "solicitacaoLista";
 }

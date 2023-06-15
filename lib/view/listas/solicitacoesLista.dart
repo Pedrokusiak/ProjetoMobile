@@ -1,86 +1,85 @@
 import 'package:flutter/material.dart';
-import 'package:projeto03/view/dto/trabalho.dart';
+
 import '../../database/sqlite/dao/solicitacao__dao_sqlite.dart';
-import '../../database/sqlite/dao/trabalho__dao_sqlite.dart';
-import '../interface/trabalho_interface_dao.dart';
-
 import '../../widget/rotas.dart';
+import '../dto/solicitacao.dart';
+import '../interface/solicitacao_interface_dao.dart';
 
-class TrabalhoLista extends StatefulWidget {
-  const TrabalhoLista({Key? key}) : super(key: key);
+class SolicitacaoLista extends StatefulWidget {
+  const SolicitacaoLista({Key? key}) : super(key: key);
 
   @override
-  State<TrabalhoLista> createState() => _TrabalhoListaState();
+  State<SolicitacaoLista> createState() => _SolicitacaoListaState();
 }
 
-class _TrabalhoListaState extends State<TrabalhoLista> {
-  TrabalhoInterfaceDAO dao = TrabalhoDAOSQLite();
-  List<Trabalho> listaTrabalhos = [];
+class _SolicitacaoListaState extends State<SolicitacaoLista> {
+  SolicitacaoInterfaceDAO dao = SolicitacaoDAOSQLite();
+  List<Solicitacao> listaSolicitacaos = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text('Locais De Trabalhos')),
+        appBar: AppBar(title: const Text('Justificativas Solicitadas')),
         body: criarLista(context),
         floatingActionButton: BotaoAdicionar(
             acao: () => Navigator.pushNamed(context, Rotas.home)
-                .then((value) => buscarTrabalhos())),
+                .then((value) => buscarSolicitacaos())),
         bottomNavigationBar: const BarraNavegacao(),
         floatingActionButtonLocation:
             FloatingActionButtonLocation.centerDocked);
   }
 
-  Future<void> carregarTrabalhos() async {
-    final trabalho = await dao.consultarTodos();
+  Future<void> carregarSolicitacaos() async {
+    final solicitacao = await dao.consultarTodos();
     setState(() {
-      listaTrabalhos = trabalho ?? [];
+      listaSolicitacaos = solicitacao ?? [];
     });
   }
 
   Widget criarLista(BuildContext context) {
     return FutureBuilder(
-      future: buscarTrabalhos(),
-      builder: (context, AsyncSnapshot<List<Trabalho>> lista) {
+      future: buscarSolicitacaos(),
+      builder: (context, AsyncSnapshot<List<Solicitacao>> lista) {
         if (!lista.hasData) return const CircularProgressIndicator();
         if (lista.data == null)
-          return const Text('Não há Local de trabalho cadastrado...');
-        List<Trabalho> listaTrabalhos = lista.data!;
+          return const Text('Não há solicitacoes cadastradas...');
+        List<Solicitacao> listaSolicitacaos = lista.data!;
         return ListView.builder(
-          itemCount: listaTrabalhos.length,
+          itemCount: listaSolicitacaos.length,
           itemBuilder: (context, indice) {
-            var trabalho = listaTrabalhos[indice];
-            return criarItemLista(context, trabalho);
+            var solicitacao = listaSolicitacaos[indice];
+            return criarItemLista(context, solicitacao);
           },
         );
       },
     );
   }
 
-  Future<List<Trabalho>> buscarTrabalhos() {
+  Future<List<Solicitacao>> buscarSolicitacaos() {
     setState(() {});
     return dao.consultarTodos();
   }
 
-  Widget criarItemLista(BuildContext context, Trabalho trabalho) {
+  Widget criarItemLista(BuildContext context, Solicitacao solicitacao) {
     return ItemLista(
-      trabalho: trabalho,
+      solicitacao: solicitacao,
       alterar: () async {
-        final result = await Navigator.pushNamed(context, 'trabalho_form',
-            arguments: trabalho);
+        final result = await Navigator.pushNamed(context, 'solicitacao_form',
+            arguments: solicitacao);
         if (result != null) {
           setState(() {
-            int index = listaTrabalhos.indexOf(trabalho);
-            listaTrabalhos[index] = result as Trabalho;
+            int index = listaSolicitacaos.indexOf(solicitacao);
+            listaSolicitacaos[index] = result as Solicitacao;
           });
         }
       },
       detalhes: () {
-        Navigator.pushNamed(context, 'home', arguments: trabalho);
+        Navigator.pushNamed(context, 'home', arguments: solicitacao);
       },
       excluir: () async {
-        await dao.excluir(trabalho.id);
-        await carregarTrabalhos();
-        if (listaTrabalhos.isEmpty) {
+        await dao.excluir(solicitacao.id);
+        await carregarSolicitacaos();
+        if (listaSolicitacaos.isEmpty) {
           setState(() {});
         }
       },
@@ -89,13 +88,13 @@ class _TrabalhoListaState extends State<TrabalhoLista> {
 }
 
 class ItemLista extends StatelessWidget {
-  final Trabalho trabalho;
+  final Solicitacao solicitacao;
   final VoidCallback alterar;
   final VoidCallback detalhes;
   final VoidCallback excluir;
 
   const ItemLista(
-      {required this.trabalho,
+      {required this.solicitacao,
       required this.alterar,
       required this.detalhes,
       required this.excluir,
@@ -105,8 +104,8 @@ class ItemLista extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(trabalho.nome),
-      subtitle: Text(trabalho.endereco),
+      title: Text(solicitacao.motivo),
+      subtitle: Text(solicitacao.dataOcorrencia),
       trailing: PainelBotoes(alterar: alterar, excluir: excluir),
       onTap: detalhes,
     );

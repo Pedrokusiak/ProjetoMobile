@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:projeto03/view/listas/solicitacoesLista.dart';
 import 'package:projeto03/widget/cadastro.dart';
 import 'package:projeto03/widget/cadastroFuncionario.dart';
 import 'package:projeto03/widget/cadastroLocal.dart';
@@ -29,6 +30,7 @@ class App extends StatelessWidget {
         Rotas.controleSalario: (context) => ControleSalario(),
         Rotas.recuperarSenha: (context) => RecuperarSenha(),
         Rotas.trabalhoLista: (context) => TrabalhoLista(),
+        Rotas.solicitacaoLista: (context) => SolicitacaoLista(),
       },
     );
   }

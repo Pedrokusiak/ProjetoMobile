@@ -1,8 +1,10 @@
 import 'package:sqflite/sqflite.dart';
 
+import '../../../view/dto/cidade.dart';
 import '../../../view/dto/trabalho.dart';
 import '../../../view/interface/trabalho_interface_dao.dart';
-import '../conexao.dart'; //importanção
+import '../conexao.dart';
+import 'CidadeDAOSQLite.dart'; //importanção
 
 class TrabalhoDAOSQLite implements TrabalhoInterfaceDAO {
   @override
@@ -13,14 +15,18 @@ class TrabalhoDAOSQLite implements TrabalhoInterfaceDAO {
     if (maps.isEmpty)
       throw Exception('Não foi encontrado registro com este id');
     Map<dynamic, dynamic> resultado = maps.first;
-    return converterTrabalho(resultado);
+    return converter(resultado);
   }
 
   @override
   Future<List<Trabalho>> consultarTodos() async {
     Database db = await Conexao.criar();
-    List<Trabalho> lista =
-        (await db.query('trabalho')).map<Trabalho>(converterTrabalho).toList();
+    List<Map<dynamic, dynamic>> resultadoBD = await db.query('trabalho');
+    List<Trabalho> lista = [];
+    for (var registro in resultadoBD) {
+      var trabalho = await converter(registro);
+      lista.add(trabalho);
+    }
     return lista;
   }
 
@@ -40,10 +46,10 @@ class TrabalhoDAOSQLite implements TrabalhoInterfaceDAO {
       sql = 'INSERT INTO trabalho (nome, endereco,url_avatar) VALUES (?,?,?,?)';
       int id = await db.rawInsert(sql, [trabalho.nome, trabalho.endereco]);
       trabalho = Trabalho(
-        id: id,
-        nome: trabalho.nome,
-        endereco: trabalho.endereco,
-      );
+          id: id,
+          nome: trabalho.nome,
+          endereco: trabalho.endereco,
+          cidade: trabalho.cidade);
     } else {
       sql =
           'UPDATE trabalho SET nome = ?, endereco = ?, url_avatar= ? WHERE id = ?';
@@ -52,10 +58,12 @@ class TrabalhoDAOSQLite implements TrabalhoInterfaceDAO {
     return trabalho;
   }
 
-  Trabalho converterTrabalho(Map<dynamic, dynamic> resultado) {
+  Future<Trabalho> converter(Map<dynamic, dynamic> resultado) async {
+    Cidade cidade = await CidadeDAOSQLite().consultar(resultado['cidade_id']);
     return Trabalho(
         id: resultado['id'],
         nome: resultado['nome'],
-        endereco: resultado['endereco']);
+        endereco: resultado['endereco'],
+        cidade: cidade);
   }
 }
